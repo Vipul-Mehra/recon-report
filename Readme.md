@@ -1,1 +1,1 @@
-echo "# reporting" >> README.md
+echo "# recon-report" >> README.md
