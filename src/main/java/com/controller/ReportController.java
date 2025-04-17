@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import java.util.HashMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,38 +29,10 @@ public class ReportController {
     @Value("${external.api.url}")
     private String externalApiUrl;
 
-    @GetMapping("/compare-external")
-    public Mono<ResponseEntity<Map<String, Object>>> compareExternalData(
-            @RequestParam("startDate") String startDate,
-            @RequestParam("endDate") String endDate) {
-
-        WebClient webClient = webClientBuilder.build();
-
-        // Define the correct ParameterizedTypeReference
-        ParameterizedTypeReference<List<Map<String, Object>>> ptr = new ParameterizedTypeReference<>() {};
-
-        return webClient.get()
-                .uri(externalApiUrl + "/api/data")
-                .retrieve()
-                .bodyToMono(ptr)
-                .flatMap(jsonDataList -> {
-                    System.out.println("JSON Data Received from Mock API: " + jsonDataList); // Print JSON data
-                    Map<String, Object> result = processSimplifiedData(startDate, endDate, jsonDataList);
-                    return Mono.just(ResponseEntity.ok(result));
-                })
-                .onErrorResume(e -> {
-                    Map<String, Object> error = Map.of(
-                            "error", "Error fetching data from external API: " + e.getMessage()
-                    );
-                    return Mono.just(ResponseEntity.status(500).body(error));
-                });
-    }
-
     @GetMapping("/compare-data")
     public ResponseEntity<Map<String, Object>> compareData(
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate) {
-
         WebClient webClient = webClientBuilder.build();
 
         // Fetch JSON data from the mock API
@@ -74,23 +46,24 @@ public class ReportController {
         System.out.println("JSON Data Received from Mock API: " + jsonDataList); // Print JSON data
 
         // Delegate to the service to process the data
-        Map<String, Object> result = processSimplifiedData(startDate, endDate, jsonDataList);
+        Map<String, Map<String, Object>> resultByProcessType = processKafkaDataService.compareData(startDate, endDate, jsonDataList);
 
-        return ResponseEntity.ok(result);
-    }
+        // Simplify and format the result
+        Map<String, Object> formattedResult = new HashMap<>();
+        for (Map.Entry<String, Map<String, Object>> entry : resultByProcessType.entrySet()) {
+            String processType = entry.getKey();
+            Map<String, Object> processTypeResult = entry.getValue();
 
-    private Map<String, Object> processSimplifiedData(String startDate, String endDate, List<Map<String, Object>> jsonDataList) {
-        // Call the service to process the data
-        Map<String, Object> detailedResult = processKafkaDataService.compareData(startDate, endDate, jsonDataList);
+            Map<String, Object> simplifiedResult = new HashMap<>();
+            simplifiedResult.put("allIds", processTypeResult.get("allIds"));
+            simplifiedResult.put("numberOfIds", processTypeResult.get("numberOfIds"));
+            simplifiedResult.put("processed", processTypeResult.get("numberOfProcessed"));
+            simplifiedResult.put("filtered", processTypeResult.get("numberOfFiltered"));
+            simplifiedResult.put("failed", processTypeResult.get("numberOfFailed"));
 
-        // Simplify the result
-        Map<String, Object> simplifiedResult = new HashMap<>();
-        simplifiedResult.put("allIds", detailedResult.getOrDefault("allIds", ""));
-        simplifiedResult.put("numberOfIds", detailedResult.getOrDefault("numberOfIds", 0));
-        simplifiedResult.put("processedIds", detailedResult.getOrDefault("processedIds", 0));
-        simplifiedResult.put("filteredIds", detailedResult.getOrDefault("filteredIds", 0));
-        simplifiedResult.put("failedIds", detailedResult.getOrDefault("failedIds", 0));
+            formattedResult.put(processType, simplifiedResult);
+        }
 
-        return simplifiedResult;
+        return ResponseEntity.ok(formattedResult);
     }
 }
