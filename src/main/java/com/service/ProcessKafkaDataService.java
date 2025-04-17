@@ -17,7 +17,7 @@ public class ProcessKafkaDataService {
  @Autowired
  private EleoxOxNomTradeExtractRepository eleoxOxNomTradeExtractRepository;
 
- public Map<String, Map<String, Object>> compareData(String startDateStr, String endDateStr, List<Map<String, Object>> jsonDataList) {
+ public Map<String, Map<String, Object>> compareData(String startDateStr, String endDateStr, List<Map<String, Object>> jsonDataList, Set<String> pipelines) {
   log.info("Comparing JSON Data for date range: {} - {}", startDateStr, endDateStr);
   log.info("Received JSON Data for comparison: {}", jsonDataList);
 
@@ -26,7 +26,7 @@ public class ProcessKafkaDataService {
   LocalDate endDate = LocalDate.parse(endDateStr, DateTimeFormatter.ISO_DATE);
 
   // Fetch ETRM deal IDs from the database for the given date range
-  List<Long> dbEtrmDealIds = eleoxOxNomTradeExtractRepository.findAllDealIds(startDate, endDate);
+  List<Long> dbEtrmDealIds = eleoxOxNomTradeExtractRepository.findAllDealIds(startDate, endDate, pipelines);
   Set<Long> dbEtrmDealIdSet = new HashSet<>(dbEtrmDealIds);
   log.info("Fetched ETRM deal IDs from DB for range {} - {}: {}", startDate, endDate, dbEtrmDealIds);
 

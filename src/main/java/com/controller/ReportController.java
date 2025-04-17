@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/report")
@@ -29,10 +30,13 @@ public class ReportController {
     @Value("${external.api.url}")
     private String externalApiUrl;
 
-    @GetMapping("/compare-data")
-    public ResponseEntity<Map<String, Object>> compareData(
+    @GetMapping("/trade-report")
+    public ResponseEntity<Map<String, Object>> tradeRepost(
             @RequestParam("startDate") String startDate,
-            @RequestParam("endDate") String endDate) {
+            @RequestParam("endDate") String endDate,
+            @RequestParam("pipelines") Set<String> pipelines,
+            @RequestParam(value = "outcomeTypes", required = false) Set<String> outcomeTypes
+            ) {
         WebClient webClient = webClientBuilder.build();
 
         // Fetch JSON data from the mock API
@@ -46,7 +50,7 @@ public class ReportController {
         System.out.println("JSON Data Received from Mock API: " + jsonDataList); // Print JSON data
 
         // Delegate to the service to process the data
-        Map<String, Map<String, Object>> resultByProcessType = processKafkaDataService.compareData(startDate, endDate, jsonDataList);
+        Map<String, Map<String, Object>> resultByProcessType = processKafkaDataService.compareData(startDate, endDate, jsonDataList,pipelines);
 
         // Simplify and format the result
         Map<String, Object> formattedResult = new HashMap<>();
