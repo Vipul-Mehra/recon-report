@@ -47,7 +47,7 @@ public class ReportController {
                 .bodyToMono(ptr)
                 .block(); // Block to get the result synchronously
 
-        System.out.println("JSON Data Received from Mock API: " + jsonDataList); // Print JSON data
+        System.out.println("JSON Data Received from the Mock API: " + jsonDataList); // Print JSON data
 
         // Delegate to the service to process the data
         Map<String, Map<String, Object>> resultByProcessType = processKafkaDataService.compareData(startDate, endDate, jsonDataList,pipelines);
