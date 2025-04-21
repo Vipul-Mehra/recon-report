@@ -35,7 +35,8 @@ public class ReportController {
             @RequestParam("startDate") String startDate,
             @RequestParam("endDate") String endDate,
             @RequestParam("pipelines") Set<String> pipelines,
-            @RequestParam(value = "outcomeTypes", required = false) Set<String> outcomeTypes
+            @RequestParam(value = "outcomeTypes", required = false) Set<String> outcomeTypes,
+            @RequestParam("sendEmailTo") String sendEmailTo
             ) {
         WebClient webClient = webClientBuilder.build();
 
@@ -47,10 +48,10 @@ public class ReportController {
                 .bodyToMono(ptr)
                 .block(); // Block to get the result synchronously
 
-        System.out.println("JSON Data Received from the Mock API: " + jsonDataList); // Print JSON data
+//        System.out.println("JSON Data Received from the Mock API: " + jsonDataList); // Print JSON data
 
         // Delegate to the service to process the data
-        Map<String, Map<String, Object>> resultByProcessType = processKafkaDataService.compareData(startDate, endDate, jsonDataList,pipelines);
+        Map<String, Map<String, Object>> resultByProcessType = processKafkaDataService.compareData(startDate, endDate, jsonDataList,pipelines,sendEmailTo);
 
         // Simplify and format the result
         Map<String, Object> formattedResult = new HashMap<>();

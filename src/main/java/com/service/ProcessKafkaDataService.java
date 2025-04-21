@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ProcessKafkaDataService {
@@ -17,7 +18,12 @@ public class ProcessKafkaDataService {
  @Autowired
  private EleoxOxNomTradeExtractRepository eleoxOxNomTradeExtractRepository;
 
- public Map<String, Map<String, Object>> compareData(String startDateStr, String endDateStr, List<Map<String, Object>> jsonDataList, Set<String> pipelines) {
+ @Autowired
+ private EmailService emailService;
+
+
+
+ public Map<String, Map<String, Object>> compareData(String startDateStr, String endDateStr, List<Map<String, Object>> jsonDataList, Set<String> pipelines, String sendEmailTo) {
   log.info("Comparing JSON Data for date range: {} - {}", startDateStr, endDateStr);
   log.info("Received JSON Data for comparison: {}", jsonDataList);
 
@@ -112,6 +118,11 @@ public class ProcessKafkaDataService {
 
    // Add the result to the main map under the processType key
    resultByProcessType.put("ETRMTradeAlert", processTypeResult);
+   // Convert comma‑separated string into a Set and trim
+   Set<String> recipients = Arrays.stream(sendEmailTo.split(","))
+           .map(String::trim)
+           .collect(Collectors.toSet());
+  emailService.sendEmailWithReport(startDateStr,endDateStr,recipients,processTypeResult);
   }
 
   // Log the comparison result in a readable JSON format

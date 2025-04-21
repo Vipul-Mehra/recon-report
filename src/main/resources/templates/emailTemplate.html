@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Email Template</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-transform: capitalize;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            padding: 20px;
+        }
+        p {
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .th{
+        font-weight:bold;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td{
+            padding: 8px;
+            text-align: center;
+        }
+        h2 {
+            margin: 20px 0 10px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .padtop50{
+            padding-top: 40px;
+        }
+        .padbot{
+            padding-bottom: 15px;
+        }
+
+    </style>
+</head>
+<body>
+
+<p class="padbot">Hi Chetan,</p>
+
+<p>Please find the Eleox Status for Trade Date : <span class="bold" th:text="${startDate}"></span> to <span class="bold" th:text="${endDate}"></span></p>
+
+<h4 class="padtop50">Real Time Status</h4>
+<table>
+    <thead>
+        <tr>
+            <th>Trade Date</th>
+            <th>Total Deals Submitted</th>
+            <th>#Failed</th>
+            <th>#Filtered</th>
+            <th>#Processed</th>
+            <th>Details Of Failures</th>
+            <th>Details Of Required Fix</th>
+            <th>Remarks</th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td th:text="${startDate} + ' / ' + ${endDate}"></td>
+        <td th:text="${totalIds}"></td>
+        <td th:text="${failed}"></td>
+        <td th:text="${filtered}"></td>
+        <td th:text="${processed}"></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    </tbody>
+</table>
+
+<h4 class="padtop50">Ref Data Interface Status:</h4>
+<table>
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>#Total</th>
+            <th>#Failed</th>
+            <th>#Filtered</th>
+            <th>#Processed</th>
+            <th>Reason</th>
+            <th>Details of Failed Ref Data</th>
+            <th>Is it fixed in UAT Eloex</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+<br>
+<br>
+
+</body>
+</html>
