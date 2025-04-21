@@ -1,4 +1,4 @@
-    package com.model.databasecreation;
+    package com.model;
 
     import jakarta.annotation.PostConstruct;
     import jakarta.persistence.EntityManager;

@@ -11,7 +11,7 @@ import java.util.Set;
 @Repository
 public interface EleoxOxNomTradeExtractRepository extends JpaRepository<EleoxOxNomTradeExtract, Long> {
 
-    @Query("SELECT e.etrmDealId FROM EleoxOxNomTradeExtract e WHERE e.trdStartDate >= :startDate AND e.trdStartDate <= :endDate AND e.etrmPipelineId IN (:pipelines)")
+    @Query("SELECT e.etrmDealId FROM EleoxOxNomTradeExtract e WHERE e.tradeDateString >= :startDate AND e.tradeDateString <= :endDate AND e.etrmPipelineId IN (:pipelines)")
     List<Long> findAllDealIds(LocalDate startDate, LocalDate endDate, Set<String> pipelines);
 
 }
